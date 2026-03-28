@@ -1,0 +1,47 @@
+.PHONY: help install dev test lint format clean docker-build docker-run"""Development and utility scripts."""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	docker-compose downdocker-stop:	docker-compose updocker-run:	docker build -t clawagent:latest .docker-build:	rm -rf htmlcov .coverage	rm -rf .pytest_cache .mypy_cache build dist *.egg-info	find . -type f -name "*.pyc" -delete	find . -type d -name __pycache__ -exec rm -rf {} +clean:	black src testsformat:	mypy src --ignore-missing-imports	flake8 srclint:	pytest tests/ -v --cov=srctest:	python -m src.maindev:	pip install -r requirements.txtinstall:	@echo "make docker-run  - Run Docker container"	@echo "make docker-build - Build Docker image"	@echo "make clean       - Clean up cache and build files"	@echo "make format      - Format code with black"	@echo "make lint        - Run linting"	@echo "make test        - Run tests"	@echo "make dev         - Run development server"	@echo "make install      - Install dependencies"	@echo "==============================="	@echo "ClawAgent Development Commands"help:
+# This template can be expanded with useful development scripts

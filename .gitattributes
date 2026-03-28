@@ -1,0 +1,14 @@
+"""Initialize Git repository and push to GitHub."""
+
+FROM alpine:latest
+
+RUN apk add --no-cache git curl
+
+WORKDIR /app
+
+COPY . .
+
+# This would be run after setting up git credentials
+RUN git init && \
+    git config user.name "ClawAgent Bot" && \
+    git config user.email "bot@clawagent.local"

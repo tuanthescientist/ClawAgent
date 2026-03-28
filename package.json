@@ -1,0 +1,23 @@
+{
+  "name": "ClawAgent",
+  "version": "1.0.0",
+  "description": "Professional AI Agent with WhatsApp Integration",
+  "author": "Tuan N. Scientist",
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "chatbot",
+    "agent",
+    "whatsapp",
+    "openai",
+    "fastapi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tuanthescientist/ClawAgent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tuanthescientist/ClawAgent/issues"
+  },
+  "homepage": "https://github.com/tuanthescientist/ClawAgent"
+}
