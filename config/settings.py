@@ -1,7 +1,7 @@
 """Configuration settings for ClawAgent."""
 
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 import os
 
 
@@ -14,16 +14,24 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # OpenAI
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4"
     OPENAI_TEMPERATURE: float = 0.7
     OPENAI_MAX_TOKENS: int = 2000
 
+    # ChatGPT via Browser (Optional)
+    CHATGPT_ACCESS_TOKEN: Optional[str] = None
+    
+    # Local LLM (Ollama)
+    USE_LOCAL_LLM: bool = False
+    LOCAL_LLM_URL: str = "http://localhost:11434"
+    LOCAL_LLM_MODEL: str = "mistral"
+
     # WhatsApp (Twilio)
-    TWILIO_ACCOUNT_SID: str
-    TWILIO_AUTH_TOKEN: str
-    TWILIO_WHATSAPP_NUMBER: str
-    WHATSAPP_WEBHOOK_TOKEN: str
+    TWILIO_ACCOUNT_SID: Optional[str] = None
+    TWILIO_AUTH_TOKEN: Optional[str] = None
+    TWILIO_WHATSAPP_NUMBER: Optional[str] = None
+    WHATSAPP_WEBHOOK_TOKEN: Optional[str] = None
 
     # Database
     DATABASE_URL: str = "sqlite:///./clawagent.db"
