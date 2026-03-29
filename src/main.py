@@ -1,6 +1,15 @@
-"""Main FastAPI application for ClawAgent."""
+"""Main FastAPI application for ClawAgent v3.0.
+
+Features:
+- Multi-provider LLM support (OpenAI, Ollama, Groq, vLLM)
+- Hybrid fallback with circuit breaker
+- WhatsApp integration
+- Advanced ReAct framework
+- Production-grade reliability
+"""
 
 import logging
+import asyncio
 from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +21,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config.settings import settings
 from src.utils.logger import setup_logging
-from src.agents.openai_agent import OpenAIAgent
+from src.core.config import AppConfig, LLMBackendType
+from src.core.hybrid_controller import HybridLLMController
+from src.llm.openai_provider import OpenAIProvider
+from src.llm.ollama_provider import OllamaProvider
+from src.llm.groq_provider import GroqProvider
+from src.agents.autonomous import AutonomousAgent
 from src.integrations.whatsapp import WhatsAppManager
 
 # Setup logging
@@ -21,9 +35,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="ClawAgent API",
-    description="Professional AI Agent with WhatsApp Integration",
-    version="1.0.0"
+    title="ClawAgent API v3.0",
+    description="Professional AI Agent with Hybrid LLM, WhatsApp Integration & Advanced ReAct",
+    version="3.0.0"
 )
 
 # Add CORS middleware
@@ -35,12 +49,68 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize services
+# Initialize v3.0 services
 try:
-    agent = OpenAIAgent(
-        name="ClawAgent",
-        api_key=settings.OPENAI_API_KEY,
-        model=settings.OPENAI_MODEL
+    # Load v3.0 configuration
+    config = AppConfig(
+        LLM_BACKEND=LLMBackendType.HYBRID if settings.LLM_BACKEND.lower() == "hybrid" else LLMBackendType.OPENAI,
+        LLM_MODEL=settings.OPENAI_MODEL,
+        OPENAI_API_KEY=settings.OPENAI_API_KEY,
+        OLLAMA_HOST=settings.get("OLLAMA_HOST", "http://localhost:11434"),
+    )
+    
+    # Initialize available LLM providers
+    providers = {}
+    
+    # OpenAI Provider (always available)
+    if settings.OPENAI_API_KEY:
+        providers["openai"] = OpenAIProvider({
+            "api_key": settings.OPENAI_API_KEY,
+            "model": settings.OPENAI_MODEL,
+            "temperature": 0.7,
+            "max_tokens": 2000,
+        })
+        logger.info("✓ OpenAI provider initialized")
+    
+    # Ollama Provider (local)
+    try:
+        providers["ollama"] = OllamaProvider({
+            "host": config.OLLAMA_HOST,
+            "model": "qwen2.5:14b",  # Default model
+            "temperature": 0.7,
+        })
+        logger.info("✓ Ollama provider initialized (local LLM)")
+    except Exception as e:
+        logger.debug(f"Ollama provider not available: {e}")
+    
+    # Groq Provider (fast API)
+    try:
+        if settings.get("GROQ_API_KEY"):
+            providers["groq"] = GroqProvider({
+                "api_key": settings.GROQ_API_KEY,
+                "model": "mixtral-8x7b-32768",
+            })
+            logger.info("✓ Groq provider initialized (fast API)")
+    except Exception as e:
+        logger.debug(f"Groq provider not available: {e}")
+    
+    # Create Hybrid Controller if multiple providers
+    if len(providers) > 1:
+        llm_provider = HybridLLMController(
+            providers=providers,
+            fallback_chain=list(providers.keys()),
+            retry_count=3,
+            circuit_breaker_enabled=True,
+        )
+        logger.info(f"✓ Hybrid LLM Controller initialized with {len(providers)} providers")
+    else:
+        llm_provider = providers.get("openai")
+        logger.info("✓ Single provider mode (OpenAI)")
+    
+    # Initialize Autonomous Agent with new provider
+    agent = AutonomousAgent(
+        name="ClawAgent v3.0",
+        llm_provider=llm_provider,
     )
     
     whatsapp_manager = WhatsAppManager(
@@ -59,15 +129,16 @@ except Exception as e:
 @app.on_event("startup")
 async def startup_event():
     """Handle startup event."""
-    logger.info("ClawAgent API starting...")
+    logger.info("ClawAgent v3.0 API starting...")
     logger.info(f"Environment: {settings.ENV}")
     logger.info(f"Debug mode: {settings.DEBUG}")
+    logger.info(f"LLM Backend: {config.LLM_BACKEND.value}")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Handle shutdown event."""
-    logger.info("ClawAgent API shutting down...")
+    logger.info("ClawAgent v3.0 API shutting down...")
 
 
 # Health check endpoint
@@ -76,8 +147,8 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "ClawAgent API",
-        "version": "1.0.0"
+        "service": "ClawAgent API v3.0",
+        "version": "3.0.0"
     }
 
 

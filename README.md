@@ -1,16 +1,33 @@
-# 🦅 ClawAgent
+# 🦅 ClawAgent v3.0
 
-A professional, production-ready AI agent platform with WhatsApp integration, built with FastAPI and OpenAI.
+**Production-ready AI Agent Platform v3.0** with Multi-Provider LLM (OpenAI, Ollama, Groq), Hybrid Fallback, Local AI Support, WhatsApp Integration, and Advanced ReAct Framework.
+
+> **NEW in v3.0**: 🎉 Local LLM Support • 🔄 Hybrid Fallback with Circuit Breaker • 🚀 Multi-Provider Architecture • ⚡ Fallback Chain • 📊 Performance Monitoring
 
 ## ✨ Features
 
-- **🤖 AI-Powered Chat**: Leverages OpenAI's GPT-4 for intelligent conversations
-- **💬 WhatsApp Integration**: Direct WhatsApp messaging via Twilio
-- **⚡ Fast & Async**: Built with FastAPI for high performance
-- **📝 Persistent History**: Maintains conversation context
-- **🛡️ Secure**: Webhook signature verification, environment-based secrets
-- **🔍 Logging**: Comprehensive logging with rotation
-- **🚀 Production Ready**: Dockerizable, scalable architecture
+### Core LLM v3.0
+- **🌐 Multi-Provider LLM**: OpenAI, Ollama (local), Groq (fast API), vLLM support
+- **🔄 Hybrid Fallback**: Automatic fallback chain with circuit breaker pattern
+- **💻 Local LLM**: Run Ollama locally (Qwen, Llama 2, Mistral)
+- **⚡ Groq Integration**: Lightning-fast API (175+ tokens/s)
+- **📊 Performance Stats**: Track latency, cost, success rates per provider
+- **🛡️ Circuit Breaker**: Prevents cascading failures with smart state management
+- **🔁 Intelligent Retry**: Configurable retry strategy with exponential backoff
+
+### Agent & Tools
+- **🤖 Autonomous Agent**: Advanced ReAct framework with tool orchestration
+- **🔧 Tool Calling**: Extensible tool system with 8+ built-in tools
+- **🧠 Memory**: Conversation context & vector memory (RAG-ready)
+- **⚙️ Multi-Agent Orchestration**: Coordinate multiple agents
+
+### Integration & Deployment
+- **💬 WhatsApp Integration**: Direct messaging via Twilio
+- **🚀 FastAPI**: High-performance async framework
+- **🐳 Docker Ready**: Includes Dockerfile and docker-compose
+- **📝 Comprehensive Logging**: Rotation, levels, structured logs
+- **🛡️ Production Security**: HMAC verification, environment secrets
+- **⚡ Scalable**: Async/await throughout, connection pooling
 
 ## 🚀 Quick Start
 
@@ -64,9 +81,64 @@ A professional, production-ready AI agent platform with WhatsApp integration, bu
 
    The API will be available at `http://localhost:8000`
 
-## � Advanced Features (v2.0+)
+## 🚀 What's New in v3.0?
 
-ClawAgent now includes **Advanced ReAct Framework** with powerful tools and semantic memory!
+### Multi-Provider LLM with Hybrid Fallback
+
+**1. Local LLM Support with Ollama**
+```bash
+# Install Ollama from https://ollama.ai
+ollama pull qwen2.5:14b
+ollama serve  # Runs on http://localhost:11434
+
+# ClawAgent automatically detects and uses it!
+```
+
+**2. Enable Hybrid Mode**
+```env
+# .env
+LLM_BACKEND=hybrid
+OPENAI_API_KEY=sk-...  # Primary fallback
+OLLAMA_HOST=http://localhost:11434
+GROQ_API_KEY=gsk-...   # (Optional) Ultra-fast fallback
+```
+
+**3. Automatic Provider Fallback**
+- Primary: Local Ollama (free, private)
+- Secondary: Groq (fast API)
+- Tertiary: OpenAI (reliable, expensive)
+- Built-in **Circuit Breaker** prevents cascading failures
+
+### Code Example: Using v3.0 Hybrid LLM
+```python
+from src.core.config import AppConfig, LLMBackendType
+from src.core.hybrid_controller import HybridLLMController
+from src.llm.openai_provider import OpenAIProvider
+from src.llm.ollama_provider import OllamaProvider
+
+# Initialize providers
+providers = {
+    "ollama": OllamaProvider({"host": "http://localhost:11434"}),
+    "openai": OpenAIProvider({"api_key": "sk-..."}),
+}
+
+# Create hybrid controller with fallback
+controller = HybridLLMController(
+    providers=providers,
+    fallback_chain=["ollama", "openai"],
+    circuit_breaker_enabled=True,
+)
+
+# Use it like a single provider
+response = await controller.generate("Tell me a joke")
+print(response.content)
+```
+
+**See also**: [UPGRADE_V3_IMPLEMENTATION_GUIDE.md](UPGRADE_V3_IMPLEMENTATION_GUIDE.md)
+
+## 🔧 Advanced Features (v2.0+)
+
+ClawAgent includes **Advanced ReAct Framework** with powerful tools and semantic memory!
 
 ### What's New
 - 🧠 **Advanced ReAct** - Multi-step reasoning with planning & adaptation

@@ -1,4 +1,4 @@
-"""Advanced FastAPI application with Autonomous Agent, Tool Calling, and Multi-LLM Support."""
+"""Advanced FastAPI application with Autonomous Agent, Hybrid LLM, Tool Calling, and Multi-Provider Support - v3.0."""
 
 import logging
 from fastapi import FastAPI, Request, HTTPException, Form
@@ -12,6 +12,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config.settings import settings
 from src.utils.logger import setup_logging
+from src.core.config import AppConfig, LLMBackendType
+from src.core.hybrid_controller import HybridLLMController
+from src.llm.openai_provider import OpenAIProvider
+from src.llm.ollama_provider import OllamaProvider
+from src.llm.groq_provider import GroqProvider
 from src.agents.autonomous import AutonomousAgent, MultiAgentOrchestrator
 from src.tools.base import ToolRegistry
 from src.tools.builtin import get_default_tools
@@ -23,9 +28,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="ClawAgent Advanced API",
-    description="Professional AI Agent with Tool Calling, Multi-LLM, and WhatsApp Integration",
-    version="2.0.0"
+    title="ClawAgent Advanced API v3.0",
+    description="Professional AI Agent with Hybrid LLM, Tool Calling, Multi-Provider Support & WhatsApp Integration",
+    version="3.0.0"
 )
 
 # Add CORS middleware
@@ -39,19 +44,74 @@ app.add_middleware(
 
 # Initialize services
 try:
+    # Load v3.0 configuration
+    config = AppConfig(
+        LLM_BACKEND=LLMBackendType.HYBRID if settings.LLM_BACKEND.lower() == "hybrid" else LLMBackendType.OPENAI,
+        LLM_MODEL=settings.OPENAI_MODEL,
+        OPENAI_API_KEY=settings.OPENAI_API_KEY,
+        OLLAMA_HOST=settings.get("OLLAMA_HOST", "http://localhost:11434"),
+    )
+    
+    # Initialize available LLM providers
+    providers = {}
+    
+    # OpenAI Provider (primary)
+    if settings.OPENAI_API_KEY:
+        providers["openai"] = OpenAIProvider({
+            "api_key": settings.OPENAI_API_KEY,
+            "model": settings.OPENAI_MODEL,
+            "temperature": 0.7,
+            "max_tokens": 2000,
+        })
+        logger.info("✓ OpenAI provider initialized")
+    
+    # Ollama Provider (local LLM)
+    try:
+        providers["ollama"] = OllamaProvider({
+            "host": config.OLLAMA_HOST,
+            "model": "qwen2.5:14b",
+            "temperature": 0.7,
+        })
+        logger.info("✓ Ollama provider initialized (local LLM)")
+    except Exception as e:
+        logger.debug(f"Ollama provider not available: {e}")
+    
+    # Groq Provider (fast API)
+    try:
+        if settings.get("GROQ_API_KEY"):
+            providers["groq"] = GroqProvider({
+                "api_key": settings.GROQ_API_KEY,
+                "model": "mixtral-8x7b-32768",
+            })
+            logger.info("✓ Groq provider initialized (fast API)")
+    except Exception as e:
+        logger.debug(f"Groq provider not available: {e}")
+    
+    # Create Hybrid Controller if multiple providers
+    if len(providers) > 1:
+        llm_provider = HybridLLMController(
+            providers=providers,
+            fallback_chain=list(providers.keys()),
+            retry_count=3,
+            circuit_breaker_enabled=True,
+        )
+        logger.info(f"✓ Hybrid LLM Controller initialized with {len(providers)} providers")
+    else:
+        llm_provider = providers.get("openai")
+        logger.info("✓ Single provider mode (OpenAI)")
+    
     # Setup tool registry with default tools
     tool_registry = ToolRegistry()
     for tool in get_default_tools():
         tool_registry.register(tool)
     
-    # Initialize autonomous agent
-    if not settings.OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY is required for autonomous agent")
+    # Initialize autonomous agent with v3.0 LLM provider
+    if not llm_provider:
+        raise ValueError("No LLM provider available")
     
     agent = AutonomousAgent(
-        name="ClawAgent Advanced",
-        api_key=settings.OPENAI_API_KEY,
-        model=settings.OPENAI_MODEL,
+        name="ClawAgent Advanced v3.0",
+        llm_provider=llm_provider,
         tool_registry=tool_registry
     )
     
@@ -65,8 +125,9 @@ try:
             webhook_token=settings.WHATSAPP_WEBHOOK_TOKEN
         )
     
-    logger.info("Services initialized successfully")
-    logger.info(f"Available tools: {', '.join([t.name for t in tool_registry.list_tools()])}")
+    logger.info("✓ All services initialized successfully (v3.0)")
+    logger.info(f"✓ Available tools: {', '.join([t.name for t in tool_registry.list_tools()])}")
+    logger.info(f"✓ LLM Backend: {config.LLM_BACKEND.value}")
     
 except Exception as e:
     logger.error(f"Failed to initialize services: {str(e)}")
@@ -76,17 +137,17 @@ except Exception as e:
 @app.on_event("startup")
 async def startup_event():
     """Handle startup event."""
-    logger.info("ClawAgent Advanced API starting...")
+    logger.info("ClawAgent Advanced API v3.0 starting...")
     logger.info(f"Environment: {settings.ENV}")
     logger.info(f"Debug mode: {settings.DEBUG}")
-    logger.info(f"LLM Model: {settings.OPENAI_MODEL}")
+    logger.info(f"LLM Backend: {config.LLM_BACKEND.value}")
     logger.info(f"Tools available: {len(tool_registry.list_tools())}")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Handle shutdown event."""
-    logger.info("ClawAgent Advanced API shutting down...")
+    logger.info("ClawAgent Advanced API v3.0 shutting down...")
 
 
 # Health check endpoint
@@ -95,9 +156,9 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "ClawAgent Advanced API",
-        "version": "2.0.0",
-        "features": ["autonomous_agent", "tool_calling", "multi_llm", "whatsapp"]
+        "service": "ClawAgent Advanced API v3.0",
+        "version": "3.0.0",
+        "features": ["autonomous_agent", "tool_calling", "hybrid_llm", "local_llm", "groq", "whatsapp"]
     }
 
 
