@@ -20,3 +20,23 @@ redis==5.0.1
 pydantic-core==2.14.5
 typing-extensions==4.9.0
 requests==2.31.0
+
+# New dependencies for upgrades
+# Vector Memory & Embeddings
+sentence-transformers==2.2.2
+numpy==1.24.3
+scikit-learn==1.3.2
+
+# Vector Database (optional, one of these)
+chromadb==0.4.14
+# faiss-cpu==1.7.4  # Alternative: pip install faiss-cpu
+
+# Local LLM support
+# ollama - via pip when available, or use API directly (aiohttp already installed)
+
+# JSON Schema validation
+jsonschema==4.20.0
+
+# Additional utilities
+pytz==2023.3
+
