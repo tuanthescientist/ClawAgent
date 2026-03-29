@@ -64,7 +64,68 @@ A professional, production-ready AI agent platform with WhatsApp integration, bu
 
    The API will be available at `http://localhost:8000`
 
-## 📚 API Documentation
+## � Advanced Features (v2.0+)
+
+ClawAgent now includes **Advanced ReAct Framework** with powerful tools and semantic memory!
+
+### What's New
+- 🧠 **Advanced ReAct** - Multi-step reasoning with planning & adaptation
+- 🛠️ **Powerful Tools** - Web search, file system, data analysis, API calls, code execution
+- 💾 **Vector Memory** - Semantic search with embeddings for context retrieval
+- 🎓 **Skill System** - Domain-specific expertise injection
+- 📊 **Reasoning Traces** - Export complete reasoning paths for analysis
+
+### Quick Advanced Start
+
+```python
+from src.agents.advanced_claw_agent import AdvancedClawAgent
+import asyncio
+
+async def main():
+    agent = AdvancedClawAgent(
+        name="MasterAgent",
+        api_key="sk-...",
+        enable_advanced_react=True,
+        enable_powerful_tools=True,
+        enable_memory=True
+    )
+    
+    response = await agent.process(
+        "Design a complete data pipeline for analyzing customer behavior"
+    )
+    
+    print(response)
+    print(agent.get_statistics())
+
+asyncio.run(main())
+```
+
+### Advanced Features Documentation
+
+- **Complete Guide**: [ADVANCED_REACT_INTEGRATION.md](ADVANCED_REACT_INTEGRATION.md)
+- **Examples**: [examples_advanced_react_tools.py](examples_advanced_react_tools.py)
+- **Status**: [ADVANCED_STATUS.md](ADVANCED_STATUS.md)
+
+### Installation for Advanced Features
+
+```bash
+pip install -r requirements-advanced.txt
+```
+
+### Key Capabilities
+
+| Feature | Status | Use Case |
+|---------|--------|----------|
+| Advanced ReAct | ✅ | Complex multi-step reasoning |
+| Web Search | ✅ | Research & information gathering |
+| Data Analysis | ✅ | Statistical analysis & visualization |
+| Code Execution | ⚠️ | Python code (disabled by default) |
+| File Operations | ✅ | Safe, sandboxed file access |
+| API Integration | ✅ | External service calls |
+| Vector Memory | ✅ | Context-aware responses |
+| Skill System | ✅ | Domain expertise |
+
+## �📚 API Documentation
 
 ### Interactive Docs
 - Swagger UI: `http://localhost:8000/docs`
@@ -246,7 +307,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👨‍💻 Author
 
-**Tuan N. Scientist**
+**Tuan Tran**
 - GitHub: [@tuanthescientist](https://github.com/tuanthescientist)
 
 ## 🙏 Acknowledgments
