@@ -1,0 +1,39 @@
+# Core dependencies for ClawAgent v3.0
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# LLM & AI
+openai==1.12.0
+
+# Async & HTTP
+aiohttp==3.9.0
+httpx==0.25.2
+asyncio-contextmanager==1.0.0
+
+# Utilities
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Logging & Monitoring
+python-json-logger==2.0.7
+
+# Data Processing
+pydantic-core==2.14.0
+
+# Type hints
+typing-extensions==4.8.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Development
+black==23.12.0
+flake8==6.1.0
+mypy==1.7.1
