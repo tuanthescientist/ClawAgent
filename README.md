@@ -1,8 +1,12 @@
-# 🦅 ClawAgent v3.0
+# 🦅 ClawAgent v3.0 — Bản chính thức
 
-**Production-ready AI Agent Platform v3.0** with Multi-Provider LLM (OpenAI, Ollama, Groq), Hybrid Fallback, Local AI Support, WhatsApp Integration, and Advanced ReAct Framework.
+**ClawAgent v3.0** là nền tảng agent AI Enterprise-ready, hướng đến cả môi trường local và cloud.
+- Local LLM (Ollama) + Cloud LLM (OpenAI, Groq) chạy đồng thời
+- Hybrid fallback tự động, circuit breaker chống quá tải
+- Tích hợp WhatsApp, FastAPI, ReAct, vector memory, tool chain
+- Version `3.0.0` đã release trên GitHub (tag: v3.0.0)
 
-> **NEW in v3.0**: 🎉 Local LLM Support • 🔄 Hybrid Fallback with Circuit Breaker • 🚀 Multi-Provider Architecture • ⚡ Fallback Chain • 📊 Performance Monitoring
+> **🔥 Mở ngay là thấy khác**: Local AI + Hybrid dự phòng + Realtime monitoring + production-grade stability.
 
 ## ✨ Features
 
