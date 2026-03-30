@@ -514,7 +514,7 @@ RISKY (Dev Only - Disabled by default):
 
 ## Examples
 
-See [examples/](../examples/) for:
+See [examples/](../../examples/) for:
 - `web_scraping_example.py` - Browse and extract data
 - `data_analysis_example.py` - Process and analyze data
 - `api_orchestration_example.py` - Chain API calls
@@ -545,4 +545,5 @@ Future tools:
 - PDF processing
 - Audio transcription
 - Video analysis
+
 

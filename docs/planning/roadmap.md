@@ -844,9 +844,9 @@ TOTAL EFFORT: 5 weeks (realistic) or 3 weeks (aggressive)
 
 ## 📄 Related Documents
 
-- [Phase 1 Detailed: Zalo OA Integration](./docs/PHASE_1_ZALO.md) (to be created)
-- [Phase 2 Detailed: Local LLM Setup](./LOCAL_LLM_GUIDE.md) (to be created)
-- [Architecture Design Document](./ARCHITECTURE.md) (to be created)
+- [Phase 1 Detailed: Zalo OA Integration](../PHASE_1_ZALO.md) (to be created)
+- [Phase 2 Detailed: Local LLM Setup](../LOCAL_LLM_GUIDE.md) (to be created)
+- [Architecture Design Document](../ARCHITECTURE.md) (to be created)
 - [GitHub Issues Tracker](https://github.com/tuanthescientist/ClawAgent/issues)
 
 ---
@@ -854,4 +854,5 @@ TOTAL EFFORT: 5 weeks (realistic) or 3 weeks (aggressive)
 **Last Updated**: March 29, 2026  
 **Maintained by**: ClawAgent Community  
 **Status**: Active Development
+
 

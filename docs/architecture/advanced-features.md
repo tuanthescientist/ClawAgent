@@ -341,10 +341,10 @@ curl -X POST http://localhost:8000/api/v1/chat/advanced \
 
 ## 📖 Related Files
 
-- [Advanced Main Application](src/main_advanced.py)
-- [Autonomous Agent](src/agents/autonomous.py)
-- [Tool System](src/tools/)
-- [Multi-LLM Support](src/llm/)
+- [Advanced Main Application](../../src/main_advanced.py)
+- [Autonomous Agent](../../src/agents/autonomous.py)
+- [Tool System](../../src/tools/)
+- [Multi-LLM Support](../../src/llm/)
 
 ---
 

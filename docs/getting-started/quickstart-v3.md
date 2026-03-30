@@ -409,9 +409,9 @@ After 60 seconds (configurable), circuit breaker will try again.
 
 ## 📖 Full Documentation
 
-- [UPGRADE_V3_IMPLEMENTATION_GUIDE.md](UPGRADE_V3_IMPLEMENTATION_GUIDE.md) - Complete implementation
-- [Contributing](CONTRIBUTING.md) - How to contribute
-- [License](LICENSE) - MIT License
+- [upgrade-v3-implementation-guide.md](upgrade-v3-implementation-guide.md) - Complete implementation
+- [Contributing](../../CONTRIBUTING.md) - How to contribute
+- [License](../../LICENSE) - MIT License
 
 ## 🤝 Support
 
@@ -422,4 +422,6 @@ After 60 seconds (configurable), circuit breaker will try again.
 ---
 
 **Happy coding! 🦞**
+
+
 
