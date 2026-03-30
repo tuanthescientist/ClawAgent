@@ -8,8 +8,9 @@ Supports:
 - Rate limiting and reliability settings
 """
 
-from typing import List, Optional
+from typing import Any, List, Optional
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from enum import Enum
 import logging
 
@@ -178,6 +179,18 @@ class AppConfig(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def normalize_debug(cls, value: Any) -> Any:
+        """Accept common environment-style truthy/falsy strings for DEBUG."""
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "yes", "on", "debug", "development"}:
+                return True
+            if normalized in {"0", "false", "no", "off", "release", "prod", "production"}:
+                return False
+        return value
 
 
 # Global config instance

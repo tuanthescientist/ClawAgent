@@ -9,8 +9,7 @@ Features:
 """
 
 import logging
-import asyncio
-from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import sys
@@ -28,6 +27,15 @@ from src.llm.ollama_provider import OllamaProvider
 from src.llm.groq_provider import GroqProvider
 from src.agents.autonomous import AutonomousAgent
 from src.integrations.whatsapp import WhatsAppManager
+
+
+def _resolve_backend(name: str) -> LLMBackendType:
+    """Resolve backend name to enum with a safe fallback."""
+    try:
+        return LLMBackendType(name.lower())
+    except ValueError:
+        logger.warning("Unknown LLM backend '%s', falling back to OPENAI", name)
+        return LLMBackendType.OPENAI
 
 # Setup logging
 setup_logging(log_level=settings.LOG_LEVEL, log_file="clawagent.log")
@@ -53,10 +61,11 @@ app.add_middleware(
 try:
     # Load v3.0 configuration
     config = AppConfig(
-        LLM_BACKEND=LLMBackendType.HYBRID if settings.LLM_BACKEND.lower() == "hybrid" else LLMBackendType.OPENAI,
+        LLM_BACKEND=_resolve_backend(settings.LLM_BACKEND),
         LLM_MODEL=settings.OPENAI_MODEL,
-        OPENAI_API_KEY=settings.OPENAI_API_KEY,
-        OLLAMA_HOST=settings.get("OLLAMA_HOST", "http://localhost:11434"),
+        OPENAI_API_KEY=settings.OPENAI_API_KEY or "",
+        OLLAMA_HOST=settings.OLLAMA_HOST,
+        GROQ_API_KEY=settings.GROQ_API_KEY or "",
     )
     
     # Initialize available LLM providers
@@ -88,7 +97,7 @@ try:
         if settings.get("GROQ_API_KEY"):
             providers["groq"] = GroqProvider({
                 "api_key": settings.GROQ_API_KEY,
-                "model": "mixtral-8x7b-32768",
+                "model": settings.GROQ_MODEL,
             })
             logger.info("✓ Groq provider initialized (fast API)")
     except Exception as e:
@@ -104,8 +113,11 @@ try:
         )
         logger.info(f"✓ Hybrid LLM Controller initialized with {len(providers)} providers")
     else:
-        llm_provider = providers.get("openai")
-        logger.info("✓ Single provider mode (OpenAI)")
+        llm_provider = next(iter(providers.values()), None)
+        logger.info("✓ Single provider mode")
+
+    if not llm_provider:
+        raise ValueError("No LLM provider available. Configure OPENAI_API_KEY or a local provider.")
     
     # Initialize Autonomous Agent with new provider
     agent = AutonomousAgent(
@@ -113,12 +125,14 @@ try:
         llm_provider=llm_provider,
     )
     
-    whatsapp_manager = WhatsAppManager(
-        account_sid=settings.TWILIO_ACCOUNT_SID,
-        auth_token=settings.TWILIO_AUTH_TOKEN,
-        whatsapp_number=settings.TWILIO_WHATSAPP_NUMBER,
-        webhook_token=settings.WHATSAPP_WEBHOOK_TOKEN
-    )
+    whatsapp_manager = None
+    if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+        whatsapp_manager = WhatsAppManager(
+            account_sid=settings.TWILIO_ACCOUNT_SID,
+            auth_token=settings.TWILIO_AUTH_TOKEN,
+            whatsapp_number=settings.TWILIO_WHATSAPP_NUMBER or "",
+            webhook_token=settings.WHATSAPP_WEBHOOK_TOKEN or "",
+        )
     
     logger.info("Services initialized successfully")
 except Exception as e:
@@ -203,6 +217,9 @@ async def chat(request: Request):
 async def whatsapp_webhook(request: Request):
     """Handle incoming WhatsApp messages from Twilio."""
     try:
+        if not whatsapp_manager:
+            raise HTTPException(status_code=503, detail="WhatsApp integration not configured")
+
         # Get form data
         form_data = await request.form()
         

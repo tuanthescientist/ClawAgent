@@ -124,7 +124,7 @@ class ProviderStats:
         """Get success rate percentage"""
         if self.requests == 0:
             return 0.0
-        return (self.successes / self.requests) * 100
+        return round((self.successes / self.requests) * 100, 2)
 
     def __repr__(self) -> str:
         return (

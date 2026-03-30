@@ -1,10 +1,11 @@
 """Autonomous Agent with Tool Calling."""
 
-import logging
-from typing import Optional, List, Dict, Any
 import json
+import logging
+from typing import Any, Dict, Optional
 
-from .base import BaseAgent, Message
+from .base import BaseAgent
+from src.core.llm_provider import Message as ProviderMessage
 from src.llm.openai_client import OpenAILLMClient
 from src.tools.base import ToolRegistry
 
@@ -14,20 +15,28 @@ logger = logging.getLogger(__name__)
 class AutonomousAgent(BaseAgent):
     """Agent that can autonomously call tools and decide actions."""
     
-    def __init__(self, 
-                 name: str,
-                 api_key: str,
-                 model: str = "gpt-4",
-                 tool_registry: Optional[ToolRegistry] = None):
-        super().__init__(name, model)
-        self.llm_client = OpenAILLMClient(api_key, model)
+    def __init__(
+        self,
+        name: str,
+        api_key: Optional[str] = None,
+        model: str = "gpt-4",
+        tool_registry: Optional[ToolRegistry] = None,
+        llm_provider: Optional[Any] = None,
+    ):
         self.tool_registry = tool_registry or ToolRegistry()
+        super().__init__(name, model)
+        self.llm_provider = llm_provider
+        self.llm_client = OpenAILLMClient(api_key, model) if api_key else None
         self.max_iterations = 10  # Prevent infinite loops
         self.autonomous_mode = True
+
+        if not self.llm_provider and not self.llm_client:
+            raise ValueError("AutonomousAgent requires either api_key or llm_provider")
     
     def _get_system_prompt(self) -> str:
         """Get enhanced system prompt for tool-using agent."""
-        tool_names = ", ".join([t.name for t in self.tool_registry.list_tools()])
+        tool_registry = getattr(self, "tool_registry", None)
+        tool_names = ", ".join([t.name for t in tool_registry.list_tools()]) if tool_registry else "none"
         
         return f"""You are {self.name}, an autonomous AI agent with the ability to use tools.
 
@@ -101,6 +110,25 @@ Be helpful, accurate, and use tools wisely."""
         
         # Add user message
         self.add_message("user", user_input)
+
+        if self.llm_provider is not None:
+            try:
+                provider_messages = [
+                    ProviderMessage(role="system", content=self.system_prompt),
+                    *[
+                        ProviderMessage(role=message["role"], content=message["content"])
+                        for message in self.get_conversation_history()
+                    ],
+                ]
+                response = await self.llm_provider.complete(provider_messages)
+                self.add_message("assistant", response.content)
+                logger.info("Agent finished using configured provider")
+                return response.content
+            except Exception as e:
+                error_msg = f"Error in autonomous loop: {str(e)}"
+                logger.error(error_msg)
+                self.add_message("assistant", error_msg)
+                return error_msg
         
         while iteration < max_iter:
             iteration += 1

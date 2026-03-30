@@ -1,47 +1,43 @@
-.PHONY: help install dev test lint format clean docker-build docker-run"""Development and utility scripts."""
+.PHONY: help install dev test lint format clean docker-build docker-run docker-stop
 
+help:
+	@echo "ClawAgent development commands"
+	@echo "============================="
+	@echo "make install      Install Python dependencies"
+	@echo "make dev          Run the FastAPI development server"
+	@echo "make test         Run the test suite"
+	@echo "make lint         Run static checks"
+	@echo "make format       Format the codebase with black"
+	@echo "make clean        Remove caches and build artifacts"
+	@echo "make docker-build Build the Docker image"
+	@echo "make docker-run   Start the Docker services"
+	@echo "make docker-stop  Stop the Docker services"
 
+install:
+	pip install -r requirements.txt
 
+dev:
+	uvicorn src.main:app --reload
 
+test:
+	py -m pytest -v
 
+lint:
+	flake8 src tests
+	mypy src --ignore-missing-imports
 
+format:
+	black src tests
 
+clean:
+	py -c "import pathlib, shutil; [shutil.rmtree(p, ignore_errors=True) for p in pathlib.Path('.').rglob('__pycache__')]"
+	py -c "import pathlib; [p.unlink() for p in pathlib.Path('.').rglob('*.pyc')]"
 
+docker-build:
+	docker build -t clawagent:latest .
 
+docker-run:
+	docker-compose up --build
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	docker-compose downdocker-stop:	docker-compose updocker-run:	docker build -t clawagent:latest .docker-build:	rm -rf htmlcov .coverage	rm -rf .pytest_cache .mypy_cache build dist *.egg-info	find . -type f -name "*.pyc" -delete	find . -type d -name __pycache__ -exec rm -rf {} +clean:	black src testsformat:	mypy src --ignore-missing-imports	flake8 srclint:	pytest tests/ -v --cov=srctest:	python -m src.maindev:	pip install -r requirements.txtinstall:	@echo "make docker-run  - Run Docker container"	@echo "make docker-build - Build Docker image"	@echo "make clean       - Clean up cache and build files"	@echo "make format      - Format code with black"	@echo "make lint        - Run linting"	@echo "make test        - Run tests"	@echo "make dev         - Run development server"	@echo "make install      - Install dependencies"	@echo "==============================="	@echo "ClawAgent Development Commands"help:
-# This template can be expanded with useful development scripts
+docker-stop:
+	docker-compose down
