@@ -296,12 +296,12 @@ async def whatsapp_webhook(request: Request):
 async def root():
     """Root endpoint."""
     return {
-        "name": "ClawAgent Advanced API",
-        "version": "2.0.0",
+        "name": "ClawAgent Advanced API v3.0",
+        "version": "3.0.0",
         "features": {
             "autonomous_agent": "AI agent that can autonomously call tools",
             "tool_calling": f"{len(tool_registry.list_tools())} built-in tools available",
-            "multi_llm": "Support for OpenAI + ChatGPT Browser + Local LLM",
+            "hybrid_llm": "Hybrid LLM with fallback chain (OpenAI/Ollama/Groq)",
             "whatsapp": "WhatsApp integration via Twilio"
         },
         "endpoints": {

@@ -245,8 +245,8 @@ async def whatsapp_webhook(request: Request):
 async def root():
     """Root endpoint."""
     return {
-        "name": "ClawAgent API",
-        "version": "1.0.0",
+        "name": "ClawAgent API v3.0",
+        "version": "3.0.0",
         "endpoints": {
             "health": "/health",
             "chat": f"{settings.API_PREFIX}/chat",

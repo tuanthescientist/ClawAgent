@@ -218,9 +218,8 @@ Response:
 ```json
 {
   "status": "healthy",
-  "service": "ClawAgent API",
-  "version": "1.0.0"
-}
+  "service": "ClawAgent API v3.0",
+  "version": "3.0.0"
 ```
 
 #### Chat
