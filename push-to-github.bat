@@ -15,8 +15,8 @@ echo Current branch:
 git branch
 echo.
 
-echo Pushing to GitHub (master branch)...
-git push -u origin master --force
+echo Pushing to GitHub (main branch)...
+git push -u origin main --force
 
 if errorlevel 0 (
     echo.

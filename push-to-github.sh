@@ -25,7 +25,7 @@ echo ""
 echo -e "${YELLOW}Pushing to GitHub (main branch)...${NC}"
 
 # Attempt push
-if git push -u origin master --force; then
+if git push -u origin main --force; then
     echo -e "${GREEN}✓ Successfully pushed to GitHub!${NC}"
     echo -e "${GREEN}Repository: https://github.com/tuanthescientist/ClawAgent${NC}"
 else
